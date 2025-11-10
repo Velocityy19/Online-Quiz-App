@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Take Quiz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -27,23 +28,38 @@
             text-align: center;
             font-weight: 500;
             color: #6a1b9a;
+            margin-bottom: 10px;
         }
         .option {
             background: #f1ebff;
-            padding: 10px 15px;
             border-radius: 8px;
-            margin: 6px 0;
+            margin: 8px 0;
+            transition: all 0.3s;
+        }
+        .option label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            width: 100%;
             cursor: pointer;
-            transition: 0.3s;
         }
         .option:hover {
             background: #e0d0ff;
         }
-        .option.selected {
-            background: #d1c4e9;
-            border: 2px solid #6a1b9a;
+        input[type="radio"]:checked + span {
+            background-color: #d1c4e9;
+            border-radius: 8px;
+            color: #4a0072;
+            font-weight: 600;
+            padding: 8px 10px;
+            display: inline-block;
+            width: 100%;
         }
-        button {
+        input[type="radio"] {
+            accent-color: #6a1b9a;
+            margin-right: 10px;
+        }
+        button[type="submit"] {
             display: block;
             width: 100%;
             padding: 10px;
@@ -55,72 +71,113 @@
             font-weight: 600;
             margin-top: 20px;
             transition: 0.3s;
+            cursor: pointer;
         }
-        button:hover {
+        button[type="submit"]:hover {
             background: #4a0072;
         }
     </style>
 </head>
 <body>
-
 <div class="quiz-container">
-    <div class="timer">Time Left: <span id="timer"></span></div>
+    <div class="timer">Time Left: <span id="timer">00:00</span></div>
     <h2 class="quiz-title" th:text="${quiz.title + ' Quiz'}"></h2>
     <p class="text-center">Time Limit: <span th:text="${quiz.timeLimitSeconds / 60}"></span> minutes</p>
-
-    <form th:action="@{'/participant/quiz/' + ${quiz.quizId} + '/submit'}" method="post">
-    <div th:each="question, iter : ${questions}">
-        <hr>
-        <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
-
-        <div th:each="option : ${question.options}" class="option" onclick="selectOption(this)">
-            <label class="w-100">
-                <input type="radio"
-                       th:name="'question_' + ${question.id}"
-                       th:value="${option.id}"
-                       required
-                       style="margin-right: 10px;">
-                <span th:text="${option.text}"></span>
-            </label>
+    
+    <form id="quizForm" th:action="@{/participant/quiz/__${quiz.quizId}__/submit}" method="post">
+        <div th:each="question, iter : ${questions}">
+            <hr>
+            <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
+            <div th:each="option : ${question.options}" class="option">
+                <label onclick="event.stopPropagation();">
+                    <input type="radio"
+                           th:name="'question_' + ${question.id}"
+                           th:value="${option.id}"
+                           onclick="event.stopPropagation();">
+                    <span th:text="${option.text}"></span>
+                </label>
+            </div>
         </div>
-    </div>
-
-    <!--  Button moved here -->
-    <button type="submit">Submit Quiz</button>
-</form>
+        <button type="submit" id="submitBtn">Submit Quiz</button>
+    </form>
 </div>
 
-<!-- Timer Script -->
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    let timeLeft = /*[[${quiz.timeLimitSeconds}]]*/ 60;
-    /*]]>*/
-    const timerDisplay = document.getElementById("timer");
-
-    function updateTimer() {
+    // Flag to control submission
+    let canSubmit = false;
+    let isTimerSubmit = false;
+    
+    // Get the form
+    const form = document.getElementById('quizForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // CRITICAL: Prevent form submission except via button click or timer
+    form.addEventListener('submit', function(e) {
+        if (!canSubmit && !isTimerSubmit) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Form submission blocked - not from button or timer');
+            return false;
+        }
+        
+        if (!isTimerSubmit) {
+            const confirmed = confirm('Are you sure you want to submit your quiz?');
+            if (!confirmed) {
+                e.preventDefault();
+                canSubmit = false;
+                return false;
+            }
+        }
+        
+        console.log('Form submitting...');
+        return true;
+    });
+    
+    // Allow submission only when submit button is clicked
+    submitBtn.addEventListener('click', function(e) {
+        canSubmit = true;
+        console.log('Submit button clicked');
+    });
+    
+    // Prevent Enter key from submitting
+    form.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            e.preventDefault();
+            console.log('Enter key blocked');
+            return false;
+        }
+    });
+    
+    // Prevent radio button clicks from triggering submission
+    const radioButtons = form.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => {
+        radio.addEventListener('click', function(e) {
+            e.stopPropagation();
+            canSubmit = false;
+            console.log('Radio clicked:', this.name, this.value);
+        });
+    });
+    
+    // Countdown timer
+    let timeLeft = /*[[${quiz.timeLimitSeconds}]]*/ 300;
+    const timerDisplay = document.getElementById('timer');
+    
+    const timer = setInterval(() => {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        timeLeft--;
         
-        if (timeLeft <= 0) {
-            document.querySelector("form").submit(); // auto-submit
-        } else {
-            timeLeft--;
-            setTimeout(updateTimer, 1000);
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            isTimerSubmit = true;
+            canSubmit = true;
+            console.log('Timer expired - auto submitting');
+            form.submit();
         }
-    }
-
-    updateTimer();
-
-    function selectOption(optionDiv) {
-        const group = optionDiv.parentElement.querySelectorAll('.option');
-        group.forEach(opt => opt.classList.remove('selected'));
-        optionDiv.classList.add('selected');
-
-        const radio = optionDiv.querySelector('input[type="radio"]');
-        radio.checked = true;
-    }
+    }, 1000);
+    
+    console.log('Quiz initialized. Time limit:', /*[[${quiz.timeLimitSeconds}]]*/ 300, 'seconds');
 </script>
-
 </body>
 </html>
