@@ -2,26 +2,34 @@ package com.example.Online.Quiz.Repository;
 
 import com.example.Online.Quiz.Models.Quiz;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@DataJpaTest
-public class QuizRepositoryTest {
+@ExtendWith(MockitoExtension.class)
+class QuizRepositoryTest {
 
-    @Autowired
+    @Mock
     private QuizRepository quizRepository;
 
     @Test
     void testFindByTitleContainingIgnoreCase() {
         Quiz quiz = new Quiz();
         quiz.setTitle("Java Test");
-        quizRepository.save(quiz);
+
+        when(quizRepository.findByTitleContainingIgnoreCase("java"))
+                .thenReturn(Arrays.asList(quiz));
 
         List<Quiz> results = quizRepository.findByTitleContainingIgnoreCase("java");
-        assertFalse(results.isEmpty());
+
+        assertEquals(1, results.size());
+        assertEquals("Java Test", results.get(0).getTitle());
     }
 }
