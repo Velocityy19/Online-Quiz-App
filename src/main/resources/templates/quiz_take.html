@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Take Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5e9ff;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+        .quiz-container {
+            max-width: 700px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #6a1b9a;
+        }
+        .timer {
+            text-align: center;
+            font-weight: 500;
+            color: #6a1b9a;
+        }
+        .option {
+    background: #f1ebff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 6px 0;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.option:hover {
+    background: #e0d0ff;
+}
+
+.option.selected {
+    background: #d1c4e9;
+    border: 2px solid #6a1b9a;
+}
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #6a1b9a;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #4a0072;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="timer">Time Left: <span id="timer"></span></div>
+    <h2 class="quiz-title" th:text="${quiz.title + ' Quiz'}"></h2>
+    <p class="text-center">Time Limit: <span th:text="${quiz.timeLimitSeconds / 60}"></span> minutes</p>
+
+    <form th:action="@{'/participant/quiz/' + ${quiz.quizId} + '/submit'}" method="post">
+    <div th:each="question, iter : ${questions}">
+        <hr>
+        <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
+
+        <div th:each="option : ${question.options}" class="option" 
+     onclick="selectOption(this)">
+    <label class="w-100">
+        <input type="radio" 
+               th:name="'question_' + ${question.id}" 
+               th:value="${option.id}" 
+               required 
+               style="margin-right: 10px;">
+        <span th:text="${option.text}"></span>
+    </label>
+</div>
+
+    <button type="submit">Submit Quiz</button>
+</form>
+
+</div>
+
+<script>
+    // Simple countdown timer
+    const totalSeconds = /*[[${quiz.timeLimitSeconds}]]*/ 60;
+    let timeLeft = totalSeconds;
+    const timerDisplay = document.getElementById('timer');
+
+    const timer = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+        timeLeft--;
+
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            document.querySelector("form").submit(); // auto-submit
+        }
+    }, 1000);
+
+    function selectOption(optionDiv) {
+    // remove selected class from all options in this question
+    const group = optionDiv.parentElement.querySelectorAll('.option');
+    group.forEach(opt => opt.classList.remove('selected'));
+    optionDiv.classList.add('selected');
+
+    const radio = optionDiv.querySelector('input[type="radio"]');
+    radio.checked = true;
+    }
+</script>
+
+</body>
+</html>

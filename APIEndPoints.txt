@@ -1,0 +1,111 @@
+===============================================
+ ONLINE QUIZ WEBAPP - API ENDPOINTS
+===============================================
+
+Base URL (Local):       http://localhost:8080
+Base URL (Production):  https://<your-app-name>.hostinger.app
+Database: PostgreSQL (Render)
+
+-----------------------------------------------
+ AUTHENTICATION & USER MANAGEMENT
+-----------------------------------------------
+
+POST   /register
+    → Registers a new participant account.
+    - Request params: userEmail, password, name
+    - Default role: participant
+    - Response: Redirects to /login
+
+POST   /login
+    → Logs in existing user (admin or participant).
+    - Request params: userEmail, password
+    - Redirects:
+        • Admin → /admin/dashboard
+        • Participant → /participant/dashboard
+
+GET    /logout
+    → Logs out current user (optional if using sessions).
+
+-----------------------------------------------
+ ADMIN ENDPOINTS
+-----------------------------------------------
+
+GET    /admin/dashboard
+    → Displays admin dashboard view.
+
+GET    /admin/add-quiz
+    → Form page for creating a new quiz.
+
+POST   /admin/add-quiz
+    → Saves a new quiz to the database.
+    - Params: title, description, category, etc.
+
+GET    /admin/edit-quiz/{id}
+    → Loads quiz by ID for editing.
+
+POST   /admin/update-quiz/{id}
+    → Updates existing quiz.
+
+DELETE /admin/delete-quiz/{id}
+    → Deletes a quiz by ID.
+
+GET    /admin/view-questions/{quizId}
+    → Displays all questions under a quiz.
+
+POST   /admin/add-question/{quizId}
+    → Adds a question to a quiz.
+
+DELETE /admin/delete-question/{questionId}
+    → Deletes a specific question.
+
+-----------------------------------------------
+ PARTICIPANT ENDPOINTS
+-----------------------------------------------
+
+GET    /participant/dashboard
+    → Displays participant home or dashboard.
+
+GET    /participant/quizzes
+    → Lists all available quizzes.
+    - Optional query param: search
+
+GET    /participant/quiz/{id}
+    → Displays quiz questions for attempt.
+
+POST   /participant/submit-quiz
+    → Submits quiz answers and calculates score.
+
+GET    /participant/result
+    → Displays quiz results after submission.
+
+-----------------------------------------------
+ GENERAL ROUTES
+-----------------------------------------------
+
+GET    /
+GET    /home
+    → Home or landing page.
+
+GET    /about
+    → About page (optional).
+
+GET    /contact
+    → Contact page (optional).
+
+-----------------------------------------------
+ DEFAULT ADMIN CREDENTIALS
+-----------------------------------------------
+
+Email:    admin@quizapp.com
+Password: admin123
+
+Participants: Must register via /register before logging in.
+
+-----------------------------------------------
+ DEPLOYMENT INFO
+-----------------------------------------------
+
+Backend: Spring Boot 3 (Java 21)
+Database: PostgreSQL (Render)
+Frontend: Thymeleaf + Bootstrap 5
+Deployed On: Hostinger (Dockerized)
