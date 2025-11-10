@@ -3,6 +3,7 @@ package com.example.Online.Quiz.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,42 +12,24 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // Send quiz result email
-    public void sendQuizResultEmail(String to, String quizTitle, int score, int totalQuestions) {
-        String subject = "Quiz Results - " + quizTitle;
-        String body = String.format(
-            "Hello!\n\n" +
-            "You’ve completed the quiz: %s\n" +
-            "Your Score: %d / %d\n\n" +
-            "Keep practicing and good luck next time!\n\n" +
-            "Best,\nOnline Quiz App Team",
-            quizTitle, score, totalQuestions
-        );
-        sendEmail(to, subject, body);
-    }
-
-    // Send registration email
-    public void sendRegistrationEmail(String to, String userName) {
-        String subject = "Welcome to Online Quiz App 🎉";
-        String body = "Hello " + userName + ",\n\n" +
-                      "Welcome to the Online Quiz App! Your account has been successfully created.\n\n" +
-                      "You can now log in and start exploring quizzes.\n\n" +
-                      "Visit: https://online-quiz-app-6yo4.onrender.com/login\n\n" +
-                      "Happy Learning!\n\n" +
-                      "– The Online Quiz Team";
-        sendEmail(to, subject, body);
-    }
-
-    // Core method
-    private void sendEmail(String to, String subject, String body) {
+    @Async
+    public void sendQuizResultEmail(String recipient, String quizTitle, int score, int total) {
         try {
+            System.out.println("📧 Attempting to send email to: " + recipient);
+            
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
+            message.setTo(recipient);
+            message.setSubject("Your Quiz Results for " + quizTitle);
+            message.setText("Hey there!\n\n"
+                    + "You completed the quiz: " + quizTitle + "\n"
+                    + "Your score: " + score + "/" + total + "\n\n"
+                    + "Great job!\n\n- Online Quiz App");
+            
             mailSender.send(message);
+            System.out.println("Email sent successfully to " + recipient);
         } catch (Exception e) {
-            System.out.println("Email sending failed: " + e.getMessage());
+            System.err.println("Failed to send email to " + recipient + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
