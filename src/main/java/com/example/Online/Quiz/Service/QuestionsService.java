@@ -74,11 +74,11 @@ public class QuestionsService {
     }
 
     // Save a question
-    public void saveQuestion(Questions question) {
+    public Questions saveQuestion(Questions question) {
         if (question.getOptions() != null) {
             question.getOptions().forEach(opt -> opt.setQuestion(question));
         }
-        questionsRepository.save(question);
+        return questionsRepository.save(question);
     }
 }
 

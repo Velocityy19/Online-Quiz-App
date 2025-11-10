@@ -15,8 +15,8 @@ public class UsersService {
     UsersRepository usersRepository;
 
     // Create User
-    public void createUser(Users user) {
-        usersRepository.save(user);
+    public Users createUser(Users user) {
+       return usersRepository.save(user);
     }
 
     //Find user by email and password

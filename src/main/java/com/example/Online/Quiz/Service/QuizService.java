@@ -25,8 +25,8 @@ public class QuizService {
     }
 
     //Save Quiz 
-    public void saveQuiz(Quiz quiz){
-        quizRepository.save(quiz);
+    public Quiz saveQuiz(Quiz quiz){
+        return quizRepository.save(quiz);
     }
 
     //Delete a quiz

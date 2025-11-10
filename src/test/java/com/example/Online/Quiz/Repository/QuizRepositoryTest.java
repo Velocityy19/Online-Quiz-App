@@ -10,20 +10,18 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-class QuizRepositoryTest {
+public class QuizRepositoryTest {
 
     @Autowired
     private QuizRepository quizRepository;
 
     @Test
-    void testSaveAndFindQuiz() {
+    void testFindByTitleContainingIgnoreCase() {
         Quiz quiz = new Quiz();
-        quiz.setTitle("Algorithms");
-
+        quiz.setTitle("Java Test");
         quizRepository.save(quiz);
 
-        List<Quiz> allQuizzes = quizRepository.findAll();
-        assertEquals(1, allQuizzes.size());
-        assertEquals("Algorithms", allQuizzes.get(0).getTitle());
+        List<Quiz> results = quizRepository.findByTitleContainingIgnoreCase("java");
+        assertFalse(results.isEmpty());
     }
 }

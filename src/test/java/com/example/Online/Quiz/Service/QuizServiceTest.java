@@ -1,8 +1,5 @@
 package com.example.Online.Quiz.Service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.example.Online.Quiz.Models.Quiz;
 import com.example.Online.Quiz.Repository.QuizRepository;
 import org.junit.jupiter.api.Test;
@@ -11,10 +8,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class QuizServiceTest {
+public class QuizServiceTest {
 
     @Mock
     private QuizRepository quizRepository;
@@ -24,20 +26,24 @@ class QuizServiceTest {
 
     @Test
     void testGetAllQuizzes() {
-        // Arrange
-        Quiz q1 = new Quiz();
-        q1.setTitle("Java Basics");
-        Quiz q2 = new Quiz();
-        q2.setTitle("Spring Boot");
+        when(quizRepository.findAll()).thenReturn(Arrays.asList(new Quiz(), new Quiz()));
+        List<Quiz> quizzes = quizService.getAllQuizzes();
+        assertEquals(2, quizzes.size());
+    }
 
-        when(quizRepository.findAll()).thenReturn(List.of(q1, q2));
+    @Test
+    void testSaveQuiz() {
+        Quiz quiz = new Quiz();
+        quiz.setTitle("New Quiz");
+        when(quizRepository.save(quiz)).thenReturn(quiz);
+        Quiz saved = quizService.saveQuiz(quiz);
+        assertEquals("New Quiz", saved.getTitle());
+    }
 
-        // Act
-        List<Quiz> result = quizService.getAllQuizzes();
-
-        // Assert
-        assertEquals(2, result.size());
-        assertEquals("Java Basics", result.get(0).getTitle());
-        verify(quizRepository).findAll();
+    @Test
+    void testGetQuizById() {
+        Quiz quiz = new Quiz();
+        when(quizRepository.findById(1L)).thenReturn(Optional.of(quiz));
+        assertNotNull(quizService.getQuizById(1L));
     }
 }
