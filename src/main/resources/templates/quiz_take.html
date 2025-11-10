@@ -68,34 +68,26 @@
     <h2 class="quiz-title" th:text="${quiz.title + ' Quiz'}"></h2>
     <p class="text-center">Time Limit: <span th:text="${quiz.timeLimitSeconds / 60}"></span> minutes</p>
 
-    <!-- ✅ Form starts once -->
     <form th:action="@{'/participant/quiz/' + ${quiz.quizId} + '/submit'}" method="post">
+    <div th:each="question, iter : ${questions}">
+        <hr>
+        <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
 
-        <!-- ✅ Loop over questions -->
-        <div th:each="question, iter : ${questions}">
-            <hr>
-            <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
-
-            <div th:each="option : ${question.options}" 
-                 class="option"
-                 onclick="selectOption(this)">
-                <label class="w-100">
-                    <input type="radio"
-                           th:name="'question_' + ${question.id}"
-                           th:value="${option.id}"
-                           required
-                           style="margin-right: 10px;">
-                    <span th:text="${option.text}"></span>
-                </label>
-            </div>
+        <div th:each="option : ${question.options}" class="option" onclick="selectOption(this)">
+            <label class="w-100">
+                <input type="radio"
+                       th:name="'question_' + ${question.id}"
+                       th:value="${option.id}"
+                       required
+                       style="margin-right: 10px;">
+                <span th:text="${option.text}"></span>
+            </label>
         </div>
+    </div>
 
-        <!-- ✅ Only one Submit button -->
-        <div class="text-center mt-4">
-            <button type="submit">Submit Quiz</button>
-        </div>
-
-    </form>
+    <!--  Button moved here -->
+    <button type="submit">Submit Quiz</button>
+</form>
 </div>
 
 <!-- Timer Script -->
