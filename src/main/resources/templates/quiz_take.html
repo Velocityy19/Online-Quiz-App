@@ -29,22 +29,20 @@
             color: #6a1b9a;
         }
         .option {
-    background: #f1ebff;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin: 6px 0;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.option:hover {
-    background: #e0d0ff;
-}
-
-.option.selected {
-    background: #d1c4e9;
-    border: 2px solid #6a1b9a;
-}
+            background: #f1ebff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 6px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .option:hover {
+            background: #e0d0ff;
+        }
+        .option.selected {
+            background: #d1c4e9;
+            border: 2px solid #6a1b9a;
+        }
         button {
             display: block;
             width: 100%;
@@ -70,54 +68,65 @@
     <h2 class="quiz-title" th:text="${quiz.title + ' Quiz'}"></h2>
     <p class="text-center">Time Limit: <span th:text="${quiz.timeLimitSeconds / 60}"></span> minutes</p>
 
+    <!-- ✅ Form starts once -->
     <form th:action="@{'/participant/quiz/' + ${quiz.quizId} + '/submit'}" method="post">
-    <div th:each="question, iter : ${questions}">
-        <hr>
-        <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
 
-        <div th:each="option : ${question.options}" class="option" 
-     onclick="selectOption(this)">
-    <label class="w-100">
-        <input type="radio" 
-               th:name="'question_' + ${question.id}" 
-               th:value="${option.id}" 
-               required 
-               style="margin-right: 10px;">
-        <span th:text="${option.text}"></span>
-    </label>
+        <!-- ✅ Loop over questions -->
+        <div th:each="question, iter : ${questions}">
+            <hr>
+            <h5 th:text="${iter.index + 1} + '. ' + ${question.text}"></h5>
+
+            <div th:each="option : ${question.options}" 
+                 class="option"
+                 onclick="selectOption(this)">
+                <label class="w-100">
+                    <input type="radio"
+                           th:name="'question_' + ${question.id}"
+                           th:value="${option.id}"
+                           required
+                           style="margin-right: 10px;">
+                    <span th:text="${option.text}"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- ✅ Only one Submit button -->
+        <div class="text-center mt-4">
+            <button type="submit">Submit Quiz</button>
+        </div>
+
+    </form>
 </div>
 
-    <button type="submit">Submit Quiz</button>
-</form>
+<!-- Timer Script -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let timeLeft = /*[[${quiz.timeLimitSeconds}]]*/ 60;
+    /*]]>*/
+    const timerDisplay = document.getElementById("timer");
 
-</div>
-
-<script>
-    // Simple countdown timer
-    const totalSeconds = /*[[${quiz.timeLimitSeconds}]]*/ 60;
-    let timeLeft = totalSeconds;
-    const timerDisplay = document.getElementById('timer');
-
-    const timer = setInterval(() => {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
         timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-        timeLeft--;
-
-        if (timeLeft < 0) {
-            clearInterval(timer);
+        
+        if (timeLeft <= 0) {
             document.querySelector("form").submit(); // auto-submit
+        } else {
+            timeLeft--;
+            setTimeout(updateTimer, 1000);
         }
-    }, 1000);
+    }
+
+    updateTimer();
 
     function selectOption(optionDiv) {
-    // remove selected class from all options in this question
-    const group = optionDiv.parentElement.querySelectorAll('.option');
-    group.forEach(opt => opt.classList.remove('selected'));
-    optionDiv.classList.add('selected');
+        const group = optionDiv.parentElement.querySelectorAll('.option');
+        group.forEach(opt => opt.classList.remove('selected'));
+        optionDiv.classList.add('selected');
 
-    const radio = optionDiv.querySelector('input[type="radio"]');
-    radio.checked = true;
+        const radio = optionDiv.querySelector('input[type="radio"]');
+        radio.checked = true;
     }
 </script>
 
