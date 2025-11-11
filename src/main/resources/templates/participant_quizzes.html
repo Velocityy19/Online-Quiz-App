@@ -87,7 +87,7 @@
         <a th:href="@{'/participant/quiz/' + ${quiz.quizId}}" class="text-decoration-none text-dark">
           <div class="quiz-card">
             <div class="quiz-title" th:text="${quiz.title}"></div>
-            <div class="quiz-subtext" th:text="'Time Limit: ' + ${quiz.timeLimitSeconds} + ' min'"></div>
+           <div class="quiz-subtext" th:text="'Time Limit: ' + ${quiz.timeLimitSeconds / 60} + ' min'"></div>
           </div>
         </a>
       </div>
