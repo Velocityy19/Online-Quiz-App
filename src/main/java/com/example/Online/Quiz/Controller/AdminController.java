@@ -55,6 +55,9 @@ public class AdminController {
     //Save Quiz
     @PostMapping("/add-quiz")
     public String saveQuiz(@ModelAttribute Quiz quiz) {
+         if (quiz.getTimeLimitSeconds() != null) {
+        quiz.setTimeLimitSeconds(quiz.getTimeLimitSeconds() * 60); // convert minutes → seconds
+    }
         quizService.saveQuiz(quiz);
         return "redirect:/admin/quizzes";
     }
