@@ -3,7 +3,6 @@ package com.example.Online.Quiz.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,7 +11,6 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
     
-    @Async
     public void sendQuizResultEmail(String recipient, String quizTitle, int score, int total) {
         try {
             System.out.println("=================================");
@@ -23,7 +21,7 @@ public class EmailService {
             System.out.println("=================================");
             
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("vasanth2k19@gmail.com"); // ⬅️ IMPORTANT: Add this
+            message.setFrom("vasanth2k19@gmail.com");
             message.setTo(recipient);
             message.setSubject("Your Quiz Results for " + quizTitle);
             message.setText(
