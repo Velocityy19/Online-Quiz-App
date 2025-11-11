@@ -16,7 +16,7 @@ public class EmailService {
     public void sendQuizResultEmail(String recipient, String quizTitle, int score, int total) {
         try {
             System.out.println("📧 Attempting to send email to: " + recipient);
-            
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(recipient);
             message.setSubject("Your Quiz Results for " + quizTitle);
@@ -24,11 +24,11 @@ public class EmailService {
                     + "You completed the quiz: " + quizTitle + "\n"
                     + "Your score: " + score + "/" + total + "\n\n"
                     + "Great job!\n\n- Online Quiz App");
-            
+
             mailSender.send(message);
-            System.out.println("Email sent successfully to " + recipient);
+            System.out.println("✅ Email sent successfully to " + recipient);
         } catch (Exception e) {
-            System.err.println("Failed to send email to " + recipient + ": " + e.getMessage());
+            System.err.println("❌ Failed to send email to " + recipient + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
