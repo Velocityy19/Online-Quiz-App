@@ -7,23 +7,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    
+
     @Autowired
     private JavaMailSender mailSender;
-    
+
     public void sendQuizResultEmail(String recipient, String quizTitle, int score, int total) {
-        // Run in a separate thread so it doesn't block
         new Thread(() -> {
             try {
-                System.out.println("=================================");
-                System.out.println("📧 Preparing to send email...");
-                System.out.println("To: " + recipient);
-                System.out.println("Quiz: " + quizTitle);
-                System.out.println("Score: " + score + "/" + total);
-                System.out.println("=================================");
+                System.out.println("📧 Sending quiz result to: " + recipient);
                 
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom("vasanth2k19@gmail.com");
+                message.setFrom("vasanth2k19@gmail.com"); // ⬅️ CRITICAL
                 message.setTo(recipient);
                 message.setSubject("Your Quiz Results for " + quizTitle);
                 message.setText(
@@ -34,18 +28,10 @@ public class EmailService {
                     + "- Online Quiz App"
                 );
                 
-                System.out.println("📤 Sending email...");
                 mailSender.send(message);
-                System.out.println("✅ Email sent successfully to " + recipient);
-                System.out.println("=================================");
-                
+                System.out.println("✅ Quiz result email sent to " + recipient);
             } catch (Exception e) {
-                System.err.println("=================================");
-                System.err.println("❌ EMAIL SENDING FAILED!");
-                System.err.println("Recipient: " + recipient);
-                System.err.println("Error Type: " + e.getClass().getName());
-                System.err.println("Error Message: " + e.getMessage());
-                System.err.println("=================================");
+                System.err.println("❌ Email failed: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
