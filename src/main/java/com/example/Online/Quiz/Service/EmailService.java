@@ -14,10 +14,15 @@ public class EmailService {
     public void sendQuizResultEmail(String recipient, String quizTitle, int score, int total) {
         new Thread(() -> {
             try {
-                System.out.println("📧 Sending quiz result to: " + recipient);
+                System.out.println("=================================");
+                System.out.println("📧 Starting email send process...");
+                System.out.println("To: " + recipient);
+                System.out.println("Quiz: " + quizTitle);
+                System.out.println("Score: " + score + "/" + total);
+                System.out.println("=================================");
                 
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom("vasanth2k19@gmail.com"); // ⬅️ CRITICAL
+                message.setFrom("vasanth2k19@gmail.com");
                 message.setTo(recipient);
                 message.setSubject("Your Quiz Results for " + quizTitle);
                 message.setText(
@@ -28,10 +33,18 @@ public class EmailService {
                     + "- Online Quiz App"
                 );
                 
+                System.out.println("📤 Calling mailSender.send()...");
                 mailSender.send(message);
-                System.out.println("✅ Quiz result email sent to " + recipient);
+                System.out.println("✅ SUCCESS! Email sent to " + recipient);
+                System.out.println("=================================");
+                
             } catch (Exception e) {
-                System.err.println("❌ Email failed: " + e.getMessage());
+                System.err.println("=================================");
+                System.err.println("❌ EMAIL SENDING FAILED!");
+                System.err.println("Recipient: " + recipient);
+                System.err.println("Error Type: " + e.getClass().getName());
+                System.err.println("Error Message: " + e.getMessage());
+                System.err.println("=================================");
                 e.printStackTrace();
             }
         }).start();
